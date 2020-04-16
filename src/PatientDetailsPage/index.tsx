@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { apiBaseUrl } from './../constants';
-import { useStateValue } from "../state";
+import { useStateValue, updatePatient } from "../state";
 import { Header, Icon, Table, Container } from 'semantic-ui-react';
 import { Patient } from "../types";
 
@@ -18,14 +18,14 @@ const PatientDetailsPage = () => {
 				try {
 					const { data: patientDetails } = await axios.get<Patient>(`${apiBaseUrl}/patients/${id}`);
 					patientDetails.fetchTimestamp = Math.floor(Date.now() / 1000);
-					dispatch({ type: "UPDATE_PATIENT", payload: patientDetails });
+					dispatch(updatePatient(patientDetails));
 				} catch (e) {
 					console.error(e);
 				}
 			};
 			fetchPatientDetails();
 		}
-	}, []);
+	}, [currentPatient, dispatch, id]);
 
 	const getGenderIconName = (gender: string) => {
 		switch (gender) {
