@@ -3,8 +3,8 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { apiBaseUrl } from './../constants';
 import { useStateValue, updatePatient } from "../state";
-import { Header, Icon, Table, Container } from 'semantic-ui-react';
-import { Patient } from "../types";
+import { Header, Icon, Table, Container, Segment } from 'semantic-ui-react';
+import { Patient, Entry } from "../types";
 
 const PatientDetailsPage = () => {
 	const { id } = useParams<{ id: string }>();
@@ -63,6 +63,21 @@ const PatientDetailsPage = () => {
 						</Table.Row>
 					</Table.Body>
 				</Table>
+
+				<Header as="h3">
+					entries
+				</Header>
+
+				{currentPatient.entries?.map((entry: Entry) => {
+					return (
+						<Segment>
+							{entry.date} <i>{entry.description}</i>
+							<ul>
+								{entry.diagnosisCodes?.map((code) => <li>{code}</li>)}
+							</ul>
+						</Segment>
+					);
+				})}
 
 			</Container>
 		);

@@ -4,6 +4,52 @@ export interface Diagnosis {
   latin?: string;
 }
 
+interface Duration {
+  startDate: string;
+  endDate: string;
+}
+
+interface Discharge {
+  date: string;
+  criteria: string;
+}
+
+export enum HealthCheckRating {
+  'Healthy' = 0,
+  'LowRisk' = 1,
+  'HighRisk' = 2,
+  'CriticalRisk' = 3
+}
+
+interface BaseEntry {
+  id: string;
+  description: string;
+  date: string;
+  specialist: string;
+  diagnosisCodes?: Array<Diagnosis['code']>;
+}
+
+export enum EntryTypes {
+  Hospital = 'Hospital',
+  OccupationalHealthcare = 'OccupationalHealthcare',
+  HealthCheck = 'HealthCheck'
+}
+interface HospitalEntry extends BaseEntry {
+  type: EntryTypes.Hospital;
+  discharge: Discharge;
+}
+interface OccupationalHealthCareEntry extends BaseEntry {
+  type: EntryTypes.OccupationalHealthcare;
+  employerName: string;
+  sickLeave?: Duration;
+}
+interface HealthCheckEntry extends BaseEntry {
+  type: EntryTypes.HealthCheck;
+  healthCheckRating: HealthCheckRating;
+}
+
+export type Entry = | HospitalEntry | OccupationalHealthCareEntry | HealthCheckEntry;
+
 export enum Gender {
   Male = "male",
   Female = "female",
@@ -17,6 +63,7 @@ export interface Patient {
   gender: Gender;
   ssn?: string;
   dateOfBirth?: string;
+  entries?: Entry[];
 
   /** Unix timestamp (seconds since January 1, 1970) representing when the data was fully fetched
    * 
