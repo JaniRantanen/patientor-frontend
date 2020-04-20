@@ -1,11 +1,12 @@
 import React from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { Header, Icon, Table, Container, Segment, Divider } from 'semantic-ui-react';
+
 import { apiBaseUrl } from './../constants';
 import { useStateValue, updatePatient } from "../state";
-import { Header, Icon, Table, Container, Segment } from 'semantic-ui-react';
-import { Patient, Entry } from "../types";
-import { Diagnosis } from './../types';
+import { Patient, Entry, EntryTypes, Diagnosis, Gender } from "../types";
+import { Hospital, OccupationalHealthCare, HealthCheck } from "./EntryComponents";
 
 const PatientDetailsPage = () => {
 	const { id } = useParams<{ id: string }>();
@@ -28,14 +29,65 @@ const PatientDetailsPage = () => {
 		}
 	}, [currentPatient, dispatch, id]);
 
+	const assertNever = (value: never): never => {
+		throw new Error(`Unhandled value: ${JSON.stringify(value)}`);
+	};
+
 	const getGenderIconName = (gender: string) => {
 		switch (gender) {
-			case "male":
+			case Gender.Male:
 				return "man";
-			case "female":
+			case Gender.Female:
 				return "woman";
 			default:
 				return "other gender horizontal";
+		}
+	};
+
+	const getEntryTypeIconName = (type: string) => {
+		switch (type) {
+			case EntryTypes.Hospital:
+				return "hospital";
+			case EntryTypes.OccupationalHealthcare:
+				return "medkit";
+			case EntryTypes.HealthCheck:
+				return "doctor";
+			default:
+				return "question";
+		}
+	};
+
+	const EntryDetails: React.FC<{ entry: Entry }> = ({ entry }) => {
+		switch (entry.type) {
+			case EntryTypes.Hospital:
+				return <Hospital entry={entry} />;
+			case EntryTypes.OccupationalHealthcare:
+				return <OccupationalHealthCare entry={entry} />;
+			case EntryTypes.HealthCheck:
+				return <HealthCheck entry={entry} />;
+			default:
+				return assertNever(entry);
+		}
+	};
+
+	const CodeList: React.FC<{ listOfCodes: string[] | undefined }> = ({ listOfCodes }) => {
+		if (!listOfCodes) {
+			return null;
+		} else {
+			return (
+				<div>
+					<Header as="h3">codes</Header>
+					<ul>
+						{listOfCodes.map((code) => {
+							const matchingCode = diagnosisCodes.find((diagnosis: Diagnosis) => diagnosis.code === code);
+							return (
+								<li key={`${Math.random()}_${code}`}>
+									{code} {matchingCode?.name}
+								</li>);
+						})}
+					</ul>
+				</div>
+			);
 		}
 	};
 
@@ -72,19 +124,16 @@ const PatientDetailsPage = () => {
 				{currentPatient.entries?.map((entry: Entry) => {
 					return (
 						<Segment key={entry.id}>
-							{entry.date} <i>{entry.description}</i>
-							<ul>
-								{entry.diagnosisCodes?.map((code) => {
-									const matchingCode = diagnosisCodes.find((diagnosis: Diagnosis) => diagnosis.code === code);
-									return (
-										<li key={`${Math.random()}_${code}`}>
-											{code} {matchingCode?.name}
-										</li>);
-								})}
-							</ul>
+							<Header as="h3">{entry.date} <Icon name={getEntryTypeIconName(entry.type)} /></Header>
+							<i>{entry.description}</i>  - {entry.specialist}
+							<Divider />
+							<Header as="h4">Additional information</Header>
+							<EntryDetails entry={entry} />
+							<CodeList listOfCodes={entry.diagnosisCodes} />
 						</Segment>
 					);
-				})}
+				})
+				}
 
 			</Container>
 		);

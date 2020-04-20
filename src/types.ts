@@ -34,16 +34,16 @@ export enum EntryTypes {
   OccupationalHealthcare = 'OccupationalHealthcare',
   HealthCheck = 'HealthCheck'
 }
-interface HospitalEntry extends BaseEntry {
+export interface HospitalEntry extends BaseEntry {
   type: EntryTypes.Hospital;
   discharge: Discharge;
 }
-interface OccupationalHealthCareEntry extends BaseEntry {
+export interface OccupationalHealthCareEntry extends BaseEntry {
   type: EntryTypes.OccupationalHealthcare;
   employerName: string;
   sickLeave?: Duration;
 }
-interface HealthCheckEntry extends BaseEntry {
+export interface HealthCheckEntry extends BaseEntry {
   type: EntryTypes.HealthCheck;
   healthCheckRating: HealthCheckRating;
 }
