@@ -70,10 +70,10 @@ const PatientDetailsPage = () => {
 
 				{currentPatient.entries?.map((entry: Entry) => {
 					return (
-						<Segment>
+						<Segment key={entry.id}>
 							{entry.date} <i>{entry.description}</i>
 							<ul>
-								{entry.diagnosisCodes?.map((code) => <li>{code}</li>)}
+								{entry.diagnosisCodes?.map((code) => <li key={`${Math.random()}_${code}`}>{code}</li>)}
 							</ul>
 						</Segment>
 					);
