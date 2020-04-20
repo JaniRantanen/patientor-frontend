@@ -5,10 +5,11 @@ import { apiBaseUrl } from './../constants';
 import { useStateValue, updatePatient } from "../state";
 import { Header, Icon, Table, Container, Segment } from 'semantic-ui-react';
 import { Patient, Entry } from "../types";
+import { Diagnosis } from './../types';
 
 const PatientDetailsPage = () => {
 	const { id } = useParams<{ id: string }>();
-	const [{ patients }, dispatch] = useStateValue();
+	const [{ patients, diagnosisCodes }, dispatch] = useStateValue();
 	const currentPatient = patients[id];
 
 	React.useEffect(() => {
@@ -73,7 +74,13 @@ const PatientDetailsPage = () => {
 						<Segment key={entry.id}>
 							{entry.date} <i>{entry.description}</i>
 							<ul>
-								{entry.diagnosisCodes?.map((code) => <li key={`${Math.random()}_${code}`}>{code}</li>)}
+								{entry.diagnosisCodes?.map((code) => {
+									const matchingCode = diagnosisCodes.find((diagnosis: Diagnosis) => diagnosis.code === code);
+									return (
+										<li key={`${Math.random()}_${code}`}>
+											{code} {matchingCode?.name}
+										</li>);
+								})}
 							</ul>
 						</Segment>
 					);
