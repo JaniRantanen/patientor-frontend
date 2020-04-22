@@ -1,4 +1,5 @@
 import React from "react";
+import { v4 as uuidv4 } from 'uuid';
 import { ErrorMessage, Field, FieldProps, FormikProps } from "formik";
 import { Dropdown, DropdownProps, Form } from "semantic-ui-react";
 import { Diagnosis, Gender } from "../types";
@@ -14,43 +15,53 @@ type SelectFieldProps = {
   name: string;
   label: string;
   options: GenderOption[];
+  id?: string;
 };
 
 export const SelectField: React.FC<SelectFieldProps> = ({
   name,
   label,
-  options
-}: SelectFieldProps) => (
-  <Form.Field>
-    <label>{label}</label>
-    <Field as="select" name={name} className="ui dropdown">
-      {options.map(option => (
-        <option key={option.value} value={option.value}>
-          {option.label || option.value}
-        </option>
-      ))}
-    </Field>
-  </Form.Field>
-);
+  options,
+  id
+}: SelectFieldProps) => {
+  id = id ? id : uuidv4();
+  return (
+    <Form.Field>
+      <label htmlFor={id}>{label}</label>
+      <Field id={id} as="select" name={name} className="ui dropdown">
+        {options.map(option => (
+          <option key={option.value} value={option.value}>
+            {option.label || option.value}
+          </option>
+        ))}
+      </Field>
+    </Form.Field>
+  );
+};
 
 interface TextProps extends FieldProps {
   label: string;
   placeholder: string;
+  id?: string;
 }
 
 export const TextField: React.FC<TextProps> = ({
   field,
   label,
-  placeholder
-}) => (
-  <Form.Field>
-    <label>{label}</label>
-    <Field placeholder={placeholder} {...field} />
-    <div style={{ color:'red' }}>
-      <ErrorMessage name={field.name} />
-    </div>
-  </Form.Field>
-);
+  placeholder,
+  id
+}) => {
+  id = id ? id : uuidv4();
+  return (
+    <Form.Field>
+      <label htmlFor={id}>{label}</label>
+      <Field id={id} placeholder={placeholder} {...field} />
+      <div style={{ color: 'red' }}>
+        <ErrorMessage name={field.name} />
+      </div>
+    </Form.Field>
+  );
+};
 
 /*
   for exercises 9.24.-
@@ -60,18 +71,22 @@ interface NumberProps extends FieldProps {
   errorMessage?: string;
   min: number;
   max: number;
+  id?: string;
 }
 
-export const NumberField: React.FC<NumberProps> = ({ field, label, min, max }) => (
-  <Form.Field>
-    <label>{label}</label>
-    <Field {...field} type='number' min={min} max={max} />
+export const NumberField: React.FC<NumberProps> = ({ field, label, min, max, id }) => {
+  id = id ? id : uuidv4();
+  return (
+    <Form.Field>
+      <label htmlFor={id}>{label}</label>
+      <Field id={id} {...field} type='number' min={min} max={max} />
 
-    <div style={{ color:'red' }}>
-      <ErrorMessage name={field.name} />
-    </div>
-  </Form.Field>
-);
+      <div style={{ color: 'red' }}>
+        <ErrorMessage name={field.name} />
+      </div>
+    </Form.Field>
+  );
+};
 
 export const DiagnosisSelection = ({
   diagnoses,
