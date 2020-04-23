@@ -31,7 +31,10 @@ const AddPatientEntry = ({ onSubmit }: Props) => {
 
 			{currentEntryType === EntryTypes.Hospital &&
 				<HospitalEntryForm
-					onSubmit={onSubmit}
+					onSubmit={(formValues) => {
+						setCurrentEntryType("");
+						onSubmit(formValues);
+					}}
 					onCancel={() => setCurrentEntryType("")}
 				/>
 			}
