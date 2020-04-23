@@ -6,6 +6,7 @@ import { TextField } from "../AddPatientModal/FormField";
 import { HospitalEntry, EntryTypes } from "../types";
 import { useStateValue } from "../state";
 import { DiagnosisSelection } from './../AddPatientModal/FormField';
+import { isValidDateString } from './../validationHelpers';
 
 interface Props {
 	onSubmit: (values: Omit<HospitalEntry, "id">) => void;
@@ -61,15 +62,23 @@ export const HospitalEntryForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
 				if (!values.description) {
 					errors.description = requiredError;
 				}
+
 				if (!values.date) {
 					errors.date = requiredError;
+				} else if (!isValidDateString(values.date)) {
+					errors.date = "Date is formatted incorrectly. Expected YYYY-MM-DD format";
 				}
+
 				if (!values.specialist) {
 					errors.specialist = requiredError;
 				}
+
 				if (!values.dischargeDate) {
 					errors.dischargeDate = requiredError;
+				} else if (!isValidDateString(values.date)) {
+					errors.dischargeDate = "Discharge date is formatted incorrectly. Expected YYYY-MM-DD format";
 				}
+
 				if (!values.dischargeCriteria) {
 					errors.dischargeCriteria = requiredError;
 				}
@@ -102,7 +111,7 @@ export const HospitalEntryForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
 						/>
 
 						<Field
-							label="Discharged"
+							label="Discharge date"
 							placeholder="YYYY-MM-DD"
 							name="dischargeDate"
 							component={TextField}
