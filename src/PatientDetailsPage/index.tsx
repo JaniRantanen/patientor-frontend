@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 import React from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
@@ -7,11 +8,13 @@ import { apiBaseUrl } from './../constants';
 import { useStateValue, updatePatient } from "../state";
 import { Patient, Entry, EntryTypes, Diagnosis, Gender } from "../types";
 import { Hospital, OccupationalHealthCare, HealthCheck } from "./EntryComponents";
+import AddPatientEntry from "../AddPatientEntry";
 
 const PatientDetailsPage = () => {
 	const { id } = useParams<{ id: string }>();
 	const [{ patients, diagnosisCodes }, dispatch] = useStateValue();
 	const currentPatient = patients[id];
+	const [error, setError] = React.useState<string | undefined>();
 
 	React.useEffect(() => {
 		const shouldFetchData = currentPatient && !currentPatient.fetchTimestamp;
@@ -28,6 +31,18 @@ const PatientDetailsPage = () => {
 			fetchPatientDetails();
 		}
 	}, [currentPatient, dispatch, id]);
+
+	const postPatientEntry = async (values: Omit<Entry, "id">) => {
+		try {
+			const response = await axios.post<Entry>(`${apiBaseUrl}/patients/${id}/entries`, values);
+			const tempPatient = { ...patients[id] };
+			tempPatient.entries?.push(response.data);
+			dispatch(updatePatient(tempPatient));
+			setError("");
+		} catch (e) {
+			setError(e.response.data.error);
+		}
+	};
 
 	const assertNever = (value: never): never => {
 		throw new Error(`Unhandled value: ${JSON.stringify(value)}`);
@@ -96,45 +111,57 @@ const PatientDetailsPage = () => {
 	} else {
 		return (
 			<Container>
-				<Header as="h2">
-					{currentPatient.name} <Icon name={getGenderIconName(currentPatient.gender)} />
-				</Header>
+				<Segment>
+					<Header as="h2">
+						{currentPatient.name} <Icon name={getGenderIconName(currentPatient.gender)} />
+					</Header>
 
-				<Table celled>
-					<Table.Body>
-						<Table.Row>
-							<Table.Cell>ssn</Table.Cell>
-							<Table.Cell>{currentPatient.ssn}</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>occupation</Table.Cell>
-							<Table.Cell>{currentPatient.occupation}</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>date of birth:</Table.Cell>
-							<Table.Cell>{currentPatient.dateOfBirth}</Table.Cell>
-						</Table.Row>
-					</Table.Body>
-				</Table>
+					<Table celled>
+						<Table.Body>
+							<Table.Row>
+								<Table.Cell>ssn</Table.Cell>
+								<Table.Cell>{currentPatient.ssn}</Table.Cell>
+							</Table.Row>
+							<Table.Row>
+								<Table.Cell>occupation</Table.Cell>
+								<Table.Cell>{currentPatient.occupation}</Table.Cell>
+							</Table.Row>
+							<Table.Row>
+								<Table.Cell>date of birth:</Table.Cell>
+								<Table.Cell>{currentPatient.dateOfBirth}</Table.Cell>
+							</Table.Row>
+						</Table.Body>
+					</Table>
+				</Segment>
 
-				<Header as="h3">
-					entries
-				</Header>
-
-				{currentPatient.entries?.map((entry: Entry) => {
-					return (
-						<Segment key={entry.id}>
-							<Header as="h3">{entry.date} <Icon name={getEntryTypeIconName(entry.type)} /></Header>
-							<i>{entry.description}</i>  - {entry.specialist}
-							<Divider />
-							<Header as="h4">Additional information</Header>
-							<EntryDetails entry={entry} />
-							<CodeList listOfCodes={entry.diagnosisCodes} />
+				<Segment>
+					{error &&
+						<Segment inverted color="red">
+							{`Error: ${error}`}
 						</Segment>
-					);
-				})
-				}
+					}
 
+					<AddPatientEntry onSubmit={postPatientEntry} />
+
+				</Segment>
+
+				<Segment>
+					<Header as="h3"> entries </Header>
+
+					{currentPatient.entries?.map((entry: Entry) => {
+						return (
+							<Segment key={entry.id}>
+								<Header as="h3">{entry.date} <Icon name={getEntryTypeIconName(entry.type)} /></Header>
+								<i>{entry.description}</i>  - {entry.specialist}
+								<Divider />
+								<Header as="h4">Additional information</Header>
+								<EntryDetails entry={entry} />
+								<CodeList listOfCodes={entry.diagnosisCodes} />
+							</Segment>
+						);
+					})
+					}
+				</Segment>
 			</Container>
 		);
 	}
