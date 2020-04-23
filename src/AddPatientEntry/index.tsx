@@ -1,5 +1,6 @@
 import React from 'react';
 import { HospitalEntryForm } from './HospitalEntryForm';
+import { OccupationealHealthcareForm } from './OccupationalHealthcareForm';
 import { Entry, EntryTypes } from '../types';
 import { Header, Select, Divider } from 'semantic-ui-react';
 
@@ -23,7 +24,7 @@ const AddPatientEntry = ({ onSubmit }: Props) => {
 				options={[
 					{ key: "none", value: "none", text: '' },
 					{ key: EntryTypes.Hospital, value: EntryTypes.Hospital, text: 'Hospital' },
-					{ key: EntryTypes.OccupationalHealthcare, value: EntryTypes.OccupationalHealthcare, text: 'Occupational healthcare', disabled: true },
+					{ key: EntryTypes.OccupationalHealthcare, value: EntryTypes.OccupationalHealthcare, text: 'Occupational healthcare' },
 					{ key: EntryTypes.HealthCheck, value: EntryTypes.HealthCheck, text: 'Health check', disabled: true }
 				]} />
 
@@ -40,7 +41,13 @@ const AddPatientEntry = ({ onSubmit }: Props) => {
 			}
 
 			{currentEntryType === EntryTypes.OccupationalHealthcare &&
-				<div>Not implemented</div>
+				<OccupationealHealthcareForm
+					onSubmit={(formValues) => {
+						setCurrentEntryType("");
+						onSubmit(formValues);
+					}}
+					onCancel={() => setCurrentEntryType("")}
+				/>
 			}
 
 			{currentEntryType === EntryTypes.HealthCheck &&
